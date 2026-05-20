@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>LSPD Blackberry RP — Официальный портал</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI','Inter',system-ui,sans-serif;background:#0a0c15;color:#e8edf5;line-height:1.5;scroll-behavior:smooth}
+        .hero{position:relative;min-height:60vh;background:linear-gradient(135deg,#0a0c15 0%,#0f1535 50%,#0a0c15 100%);display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+        .waves-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.35}
+        .hero-content{position:relative;z-index:2;max-width:800px;padding:40px 20px}
+        .lspd-badge{font-size:80px;margin-bottom:20px;text-shadow:0 0 20px #00aaff;animation:float 3s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        .hero h1{font-size:56px;font-weight:800;background:linear-gradient(135deg,#fff,#00aaff);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:4px}
+        .hero .subtitle{font-size:18px;color:#8a9bc0;letter-spacing:2px;margin-bottom:30px}
+        .main-content{background:#0a0c15;padding:60px 20px}
+        .container{max-width:1300px;margin:0 auto}
+        .user-bar{display:flex;justify-content:space-between;align-items:center;background:#0f1425;padding:12px 30px;border-bottom:1px solid #00aaff30;flex-wrap:wrap;gap:15px}
+        .user-info{display:flex;align-items:center;gap:15px}
+        .user-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
+        .user-name{color:#00ff88;font-weight:600}
+        .nav-buttons{display:flex;gap:15px}
+        .nav-btn{background:transparent;border:1px solid #00aaff;padding:8px 18px;border-radius:30px;color:#e8edf5;cursor:pointer;font-weight:600;transition:0.2s}
+        .nav-btn:hover{background:#00aaff;color:#0a0c15}
+        .discord-btn{background:#5865F2;border:none;display:flex;align-items:center;gap:8px}
+        .discord-btn:hover{background:#4752c4}
+        .main-nav{display:flex;justify-content:center;gap:20px;margin-bottom:40px;flex-wrap:wrap}
+        .main-nav-btn{padding:12px 28px;background:#1a1f2e;border:1px solid rgba(0,170,255,0.3);border-radius:40px;color:#e8edf5;cursor:pointer;transition:0.3s;font-weight:600;font-size:16px}
+        .main-nav-btn:hover,.main-nav-btn.active{background:#00aaff;color:#0a0c15}
+        .section{display:none;animation:fadeIn 0.3s}
+        .section.active-section{display:block}
+        .section-title{text-align:center;font-size:32px;margin-bottom:40px;color:#00aaff;text-transform:uppercase;letter-spacing:2px}
+        .compact-stats{display:flex;flex-direction:column;gap:15px;max-width:800px;margin:0 auto}
+        .compact-dept-card{background:linear-gradient(135deg,#1a1f2e,#0f1425);border-radius:16px;padding:18px 24px;border-left:4px solid #00aaff;transition:0.3s}
+        .compact-dept-card:hover{transform:translateX(5px);background:#1f2538}
+        .dept-color-PAI{color:#00ff88}.dept-color-CPD{color:#00aaff}.dept-color-SWAT{color:#a0a0a0}
+        .dept-color-IAD{color:#ff4444}.dept-color-PAD{color:#ffcc00}.dept-color-GATE{color:#ff8844}.dept-color-DB{color:#ff66cc}
+        .compare-row{display:flex;gap:30px;flex-wrap:wrap;margin-top:8px}
+        .week-compare{flex:1}
+        .week-label{font-size:11px;text-transform:uppercase;color:#8a9bc0;margin-bottom:5px}
+        .week-label.last{color:#ffaa44}.week-label.current{color:#00ff88}
+        .percent-value{font-size:28px;font-weight:800;font-family:monospace}
+        .percent-value.last{color:#ffaa44}.percent-value.current{color:#00ff88}
+        .percent-bar{flex:1;height:6px;background:#2a2f3e;border-radius:3px;overflow:hidden}
+        .percent-bar-fill{height:100%;width:0%;transition:width 0.5s}
+        .percent-bar-fill.last{background:linear-gradient(90deg,#ffaa44,#ff8844)}
+        .percent-bar-fill.current{background:linear-gradient(90deg,#00ff88,#00aaff)}
+        .reports-table-wrapper{overflow-x:auto;background:#1a1f2e;border-radius:24px;padding:20px}
+        .reports-table{width:100%;border-collapse:collapse;min-width:600px}
+        .reports-table th,.reports-table td{padding:12px;text-align:left;border-bottom:1px solid #2a2f3e}
+        .reports-table th{color:#00aaff}
+        .filter-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+        .filter-badge{background:#1a1f2e;border:1px solid #00aaff;padding:6px 14px;border-radius:20px;cursor:pointer}
+        .filter-badge.active{background:#00aaff;color:#0a0c15}
+        .bleks-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:20px;gap:15px}
+        .points-card{background:#0f1425;border-radius:20px;padding:15px 25px;border:1px solid #ffcc00}
+        .points-card h3{color:#ffcc00}
+        .points-value{font-size:36px;font-weight:800;color:#ffcc00}
+        .bleks-tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #2a2f3e}
+        .bleks-tab{padding:10px 20px;cursor:pointer;border-bottom:3px solid transparent}
+        .bleks-tab.active{border-bottom-color:#00aaff;color:#00aaff}
+        .tasks-grid{display:grid;gap:10px;margin-bottom:20px}
+        .task-card{background:linear-gradient(135deg,#1a1f2e,#0f1425);border-radius:16px;padding:15px 20px;border-left:4px solid #ffcc00;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+        .task-name{flex:2;font-weight:500}
+        .task-dept{background:#0a0c15;padding:4px 12px;border-radius:20px;font-size:12px;color:#00aaff}
+        .task-points{background:#ffcc0020;padding:4px 12px;border-radius:20px;font-size:12px;color:#ffcc00}
+        .task-status{font-weight:600}
+        .task-status.completed{color:#00ff88}
+        .task-status.pending{color:#ffaa44}
+        .bleks-log-table{width:100%;border-collapse:collapse;margin-top:15px}
+        .bleks-log-table th,.bleks-log-table td{padding:12px;text-align:left;border-bottom:1px solid #2a2f3e}
+        .bleks-log-table th{color:#00aaff}
+        .bleks-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
+        .bleks-stat-card{background:#1a1f2e;border-radius:16px;padding:12px;text-align:center}
+        .bleks-stat-card .value{font-size:24px;font-weight:800}
+        .bleks-stat-card .label{font-size:12px;color:#8a9bc0}
+        .officers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px;margin-top:20px}
+        .officer-card{background:linear-gradient(135deg,#1a1f2e,#0f1425);border-radius:20px;padding:20px;border-left:4px solid #00aaff;display:flex;align-items:center;gap:15px}
+        .officer-avatar{width:60px;height:60px;border-radius:50%;object-fit:cover;background:#0a0c15}
+        .officer-info{flex:1}
+        .officer-name{font-size:18px;font-weight:700;color:#00aaff}
+        .officer-role{font-size:12px;color:#8a9bc0;margin-top:4px}
+        .officer-discord{font-size:11px;color:#ffaa44;margin-top:4px}
+        .profile-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1f2e;border-radius:24px;padding:30px;z-index:1000;width:90%;max-width:400px;text-align:center}
+        .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999}
+        footer{text-align:center;padding:30px;border-top:1px solid #1a1f2e;margin-top:40px}
+        .loading{text-align:center;padding:40px;color:#00aaff}
+        .guest-badge{background:rgba(255,170,0,0.2);border:1px solid #ffaa44;padding:4px 12px;border-radius:20px;font-size:12px;color:#ffaa44}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    </style>
+</head>
+<body>
+
+<div class="user-bar" id="userBar">
+    <div class="user-info" id="userInfo"></div>
+    <div class="nav-buttons" id="navButtons"></div>
+</div>
+
+<div class="hero">
+    <svg class="waves-bg" viewBox="0 0 1440 320"><path fill="#00aaff" fill-opacity="0.08" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,261.3C672,256,768,224,864,208C960,192,1056,192,1152,197.3C1248,203,1344,213,1392,218.7L1440,224L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"/><path fill="#0066cc" fill-opacity="0.08" d="M0,224L48,218.7C96,213,192,203,288,197.3C384,192,480,192,576,197.3C672,203,768,213,864,208C960,203,1056,181,1152,165.3C1248,149,1344,139,1392,133.3L1440,128L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"/></svg>
+    <div class="hero-content">
+        <div class="lspd-badge">👮‍♂️⭐👮‍♀️</div>
+        <h1>LSPD</h1>
+        <div class="subtitle">LOS SANTOS POLICE DEPARTMENT</div>
+        <div class="subtitle" style="font-size:14px">GTA 5 RP | сервер Blackberry</div>
+        <div class="guest-badge" style="display:inline-block;margin-top:20px" id="guestBadge">👁️ ГОСТЕВОЙ РЕЖИМ</div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="container">
+        <div class="main-nav">
+            <button class="main-nav-btn active" data-section="stats">📊 СТАТИСТИКА ОТДЕЛОВ</button>
+            <button class="main-nav-btn" data-section="activities">📋 ОТЧЁТЫ ПО НАПРАВЛЕНИЯМ</button>
+            <button class="main-nav-btn" data-section="bleks">🏆 БЛЕКСЫ</button>
+            <button class="main-nav-btn" data-section="officers">👮 ОФИЦЕРСКИЙ СОСТАВ</button>
+        </div>
+
+        <div id="section-stats" class="section active-section">
+            <div id="compactStats" class="compact-stats"><div class="loading">⏳ ЗАГРУЗКА...</div></div>
+        </div>
+
+        <div id="section-activities" class="section">
+            <h2 class="section-title">📋 ОТЧЁТЫ ПО НАПРАВЛЕНИЯМ</h2>
+            <div id="activitiesFilters" class="filter-buttons"></div>
+            <div id="activitiesReportsContainer" class="reports-table-wrapper"><div class="loading">⏳ ЗАГРУЗКА...</div></div>
+        </div>
+
+        <div id="section-bleks" class="section">
+            <h2 class="section-title">🏆 БЛЕКСЫ / ДОСТИЖЕНИЯ</h2>
+            <div class="bleks-header">
+                <div class="points-card"><h3>🫐 БЛЕКСЫ LSPD</h3><div class="points-value" id="blackberryPoints">0</div></div>
+                <div class="bleks-stats">
+                    <div class="bleks-stat-card daily"><div class="value" id="dailyCount">0 / 0</div><div class="label">Ежедневные (сегодня)</div></div>
+                    <div class="bleks-stat-card weekly"><div class="value" id="weeklyCount">0 / 0</div><div class="label">Еженедельные (за неделю)</div></div>
+                    <div class="bleks-stat-card monthly"><div class="value" id="monthlyCount">0 / 0</div><div class="label">Ежемесячные (за месяц)</div></div>
+                </div>
+            </div>
+            <div class="bleks-tabs" id="bleksTabs">
+                <div class="bleks-tab active" data-type="daily">📅 ЕЖЕДНЕВНЫЕ</div>
+                <div class="bleks-tab" data-type="weekly">📆 ЕЖЕНЕДЕЛЬНЫЕ</div>
+                <div class="bleks-tab" data-type="monthly">📅 ЕЖЕМЕСЯЧНЫЕ</div>
+            </div>
+            <div id="tasksContainer" class="tasks-grid"><div class="loading">⏳ ЗАГРУЗКА...</div></div>
+            <div id="bleksLogContainer" style="margin-top:30px;">
+                <h3 style="color:#00aaff; margin-bottom:15px;">📋 ИСТОРИЯ ВЫПОЛНЕНИЯ БЛЭКСОВ</h3>
+                <div id="bleksLogTable" class="reports-table-wrapper"><div class="loading">⏳ ЗАГРУЗКА...</div></div>
+            </div>
+        </div>
+
+        <div id="section-officers" class="section">
+            <h2 class="section-title">👮 ОФИЦЕРСКИЙ СОСТАВ LSPD</h2>
+            <div id="officersGrid" class="officers-grid"><div class="loading">⏳ ЗАГРУЗКА...</div></div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 Фракция LSPD | Los Santos Police Department | GTA 5 RP | Сервер Blackberry</p>
+    <p>To Protect and Serve</p>
+</footer>
+
+<script>
+    const SUPABASE_URL = 'https://xhgudkefqmntnekaxgke.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_Svhz_VfE3OTEJckPSHoHrw_2e5BxGQF';
+    
+    let currentUser = null;
+    let tasks = [];
+    let bleksLog = [];
+    let allReports = [], currentReports = [], lastReports = [];
+    let activityFilter = 'all';
+    let currentTab = 'daily';
+    let weekNumber = 0;
+    let monthPeriod = '';
+    let todayDate = '';
+    
+    // ========== ПРОВЕРКА АВТОРИЗАЦИИ ==========
+    function checkAuth() {
+        const saved = localStorage.getItem('lspd_user');
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            updateUserBar(true);
+            document.getElementById('guestBadge').style.display = 'none';
+        } else {
+            updateUserBar(false);
+            document.getElementById('guestBadge').style.display = 'inline-block';
+        }
+    }
+    
+    // ========== ПЕРЕНАПРАВЛЕНИЕ НА АВТОРИЗАЦИЮ ==========
+    function redirectToAuth() {
+        window.location.href = 'https://abdul01041958as-collab.github.io/lspd-portal/';
+    }
+    
+    function logout() {
+        localStorage.removeItem('lspd_user');
+        currentUser = null;
+        updateUserBar(false);
+        document.getElementById('guestBadge').style.display = 'inline-block';
+        location.reload();
+    }
+    
+    function updateUserBar(isAuth) {
+        const userInfoDiv = document.getElementById('userInfo');
+        const navBtnsDiv = document.getElementById('navButtons');
+        
+        if (isAuth && currentUser) {
+            const avatarUrl = currentUser.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            userInfoDiv.innerHTML = `
+                <img src="${avatarUrl}" class="user-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                <span class="user-name">${escapeHtml(currentUser.first_name || '')} ${escapeHtml(currentUser.last_name || '')}</span>
+            `;
+            navBtnsDiv.innerHTML = `
+                <button class="nav-btn" onclick="showProfileModal()">👤 Личный кабинет</button>
+                <button class="nav-btn" onclick="logout()">🚪 Выйти</button>
+            `;
+        } else {
+            userInfoDiv.innerHTML = '';
+            navBtnsDiv.innerHTML = `
+                <button class="nav-btn discord-btn" onclick="redirectToAuth()">
+                    🎮 Войти через Discord
+                </button>
+            `;
+        }
+    }
+    
+    function showProfileModal() {
+        if (!currentUser) return;
+        const avatarHtml = currentUser.avatar_url 
+            ? `<img src="${currentUser.avatar_url}" style="width:80px;height:80px;border-radius:50%;margin:0 auto 15px;" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">`
+            : `<div class="avatar">👮</div>`;
+        
+        const modalHtml = `
+            <div class="overlay" onclick="closeModal()"></div>
+            <div class="profile-modal">
+                ${avatarHtml}
+                <h2 style="color:#00aaff; margin-bottom:15px;">${escapeHtml(currentUser.first_name || '')} ${escapeHtml(currentUser.last_name || '')}</h2>
+                <div style="margin-bottom:10px;"><strong>Discord:</strong> ${escapeHtml(currentUser.username || '—')}</div>
+                <div style="margin-bottom:10px;"><strong>Должность:</strong> ${escapeHtml(currentUser.position_name || 'Рядовой сотрудник')}</div>
+                <div style="margin-bottom:10px;"><strong>Отдел:</strong> ${escapeHtml(currentUser.department || '—')}</div>
+                <div style="margin-bottom:15px;"><strong>📊 Отчётов:</strong> ${currentUser.total_reports || 0} | <strong>⭐ Репутация:</strong> ${currentUser.reputation || 0}</div>
+                <hr style="margin:15px 0; border-color:#00aaff30;">
+                <input type="text" id="editFirstName" value="${escapeHtml(currentUser.first_name || '')}" placeholder="Имя" style="margin-bottom:10px;">
+                <input type="text" id="editLastName" value="${escapeHtml(currentUser.last_name || '')}" placeholder="Фамилия" style="margin-bottom:20px;">
+                <button class="nav-btn" onclick="updateProfile()" style="background:#00aaff; color:#0a0c15;">💾 Сохранить изменения</button>
+                <button class="nav-btn" onclick="closeModal()" style="margin-top:10px;">Закрыть</button>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+    
+    window.updateProfile = async function() {
+        const firstName = document.getElementById('editFirstName').value.trim();
+        const lastName = document.getElementById('editLastName').value.trim();
+        if (!firstName || !lastName) { alert('Заполните оба поля'); return; }
+        
+        try {
+            await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUser.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ first_name: firstName, last_name: lastName })
+            });
+            currentUser.first_name = firstName;
+            currentUser.last_name = lastName;
+            localStorage.setItem('lspd_user', JSON.stringify(currentUser));
+            closeModal();
+            updateUserBar(true);
+            alert('✅ Профиль обновлён!');
+        } catch(e) {
+            alert('❌ Ошибка при обновлении');
+        }
+    };
+    
+    window.closeModal = () => {
+        document.querySelector('.overlay')?.remove();
+        document.querySelector('.profile-modal')?.remove();
+    };
+    
+    // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+    function getTodayDate(){ let d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+    function getWeekNumber(){let d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+3-(d.getDay()+6)%7);let w=new Date(d.getFullYear(),0,4);return 1+Math.round(((d-w)/86400000-3+(w.getDay()+6)%7)/7);}
+    function getMonthPeriodForDate(date){let y=date.getFullYear(), m=date.getMonth();if(date.getDate()>=19){m++;if(m>11){m=0;y++;}}return `${y}-${m+1}`;}
+    function getTotalTasksCount(type){return tasks.filter(t=>t.type===type).length;}
+    function escapeHtml(s){return s?.replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':'&gt;')||'';}
+    
+    async function supabaseFetch(path,opt={}){let h={'apikey':SUPABASE_ANON_KEY,'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,'Content-Type':'application/json'};let r=await fetch(`${SUPABASE_URL}${path}`,{...opt,headers:h});if(!r.ok)throw new Error(await r.text());return r.json();}
+    
+    // ========== СТАТИСТИКА ОТДЕЛОВ ==========
+    const activityWeight = { 'CPD_fines':15, 'CPD_searches':3, 'IAD_rounds':2, 'IAD_inspection':15 };
+    const departmentActivities = {
+        PAI: [{id:"PAI_interview",name:"Собеседование",norm:14},{id:"PAI_training",name:"Тренировка LSPD",norm:3},{id:"PAI_lecture",name:"Лекции сотрудникам LSPD",norm:5},{id:"PAI_bleks",name:"Закрыть задания на блексы",norm:2}],
+        CPD: [{id:"CPD_training",name:"Тренировка LSPD",norm:3},{id:"CPD_fines",name:"15 штрафов (за день)",norm:105},{id:"CPD_searches",name:"3 обыска (за день)",norm:21},{id:"CPD_bleks",name:"Закрыть задания на блексы",norm:2}],
+        SWAT: [{id:"SWAT_airdrop",name:"Аир Дроп",norm:10},{id:"SWAT_training",name:"Тренировка LSPD",norm:3},{id:"SWAT_patrol",name:"Усиленный патруль",norm:10},{id:"SWAT_supply",name:"Поставка EMS/NG",norm:10},{id:"SWAT_bleks",name:"Закрыть задания на блексы",norm:2}],
+        IAD: [{id:"IAD_training",name:"Тренировка LSPD",norm:3},{id:"IAD_inspection",name:"Проверка документов (15/день)",norm:105},{id:"IAD_rounds",name:"2 объезда (за день)",norm:14},{id:"IAD_bleks",name:"Закрыть задания на блексы",norm:2}],
+        PAD: [{id:"PAD_gmp",name:"ГМП",norm:1},{id:"PAD_mp",name:"МП",norm:2},{id:"PAD_participation",name:"Участие в мероприятии",norm:5}],
+        GATE: [{id:"GATE_training",name:"Тренировка LSPD",norm:5},{id:"GATE_gsp_train",name:"Реакция на ГШ/ПОЕЗД",norm:10},{id:"GATE_racket",name:"Реакция на РЕКЕТ магазинов",norm:10},{id:"GATE_bleks",name:"Закрыть задания на блексы",norm:2}],
+        DB: [{id:"DB_assault",name:"Штурм титульного района",norm:2},{id:"DB_training",name:"Тренировка LSPD",norm:3},{id:"DB_case",name:"Кейс на внедрение",norm:2},{id:"DB_bleks",name:"Закрыть задания на блексы",norm:2}]
+    };
+    const deptColor = { 'PAI':'#00ff88','CPD':'#00aaff','SWAT':'#a0a0a0','IAD':'#ff4444','PAD':'#ffcc00','GATE':'#ff8844','DB':'#ff66cc' };
+    
+    function getWeekNumberStat(d=new Date()){let date=new Date(d);date.setHours(0,0,0,0);date.setDate(date.getDate()+3-(date.getDay()+6)%7);let w=new Date(date.getFullYear(),0,4);return 1+Math.round(((date-w)/86400000-3+(w.getDay()+6)%7)/7);}
+    function getActivityTotalStat(reports,deptId,activityId){let total=0;for(let r of reports) if(r.dept===deptId && r.activity_id===activityId) total+=activityWeight[activityId]||1; return total;}
+    function calculateDeptProgressStat(reports,deptId){let acts=departmentActivities[deptId];if(!acts)return 0;let sum=0;for(let a of acts){let total=getActivityTotalStat(reports,deptId,a.id);sum+=Math.min(100,Math.round((total/a.norm)*100));}return Math.round(sum/acts.length);}
+    
+    async function fetchReportsStat(){
+        let r=await fetch(`${SUPABASE_URL}/rest/v1/reports?select=*&order=date.desc`,{headers:{apikey:SUPABASE_ANON_KEY,Authorization:`Bearer ${SUPABASE_ANON_KEY}`}});
+        if(!r.ok)throw new Error();
+        allReports=await r.json();
+        let cw=getWeekNumberStat(), lw=cw-1;
+        currentReports=allReports.filter(r=>getWeekNumberStat(new Date(r.date))===cw);
+        lastReports=allReports.filter(r=>getWeekNumberStat(new Date(r.date))===lw);
+        updateAllStatsStat(); updateActivitiesReportsPageStat();
+    }
+    
+    function updateAllStatsStat(){
+        let html='';
+        for(let dept of ['PAI','CPD','SWAT','IAD','PAD','GATE','DB']){
+            let cur=calculateDeptProgressStat(currentReports,dept);
+            let last=calculateDeptProgressStat(lastReports,dept);
+            html+=`<div class="compact-dept-card"><div><span style="color:${deptColor[dept]};font-size:22px;font-weight:800;text-decoration:underline">${dept}</span></div><div class="compare-row"><div class="week-compare"><div class="week-label last">ПРОШЛАЯ НЕДЕЛЯ</div><div class="percent-value last">${last}%</div><div class="percent-bar"><div class="percent-bar-fill last" style="width:${last}%"></div></div></div><div class="week-compare"><div class="week-label current">ТЕКУЩАЯ НЕДЕЛЯ</div><div class="percent-value current">${cur}%</div><div class="percent-bar"><div class="percent-bar-fill current" style="width:${cur}%"></div></div></div></div></div>`;
+        }
+        document.getElementById('compactStats').innerHTML=html;
+    }
+    
+    function updateActivitiesReportsPageStat(){
+        let filtered=currentReports;
+        if(activityFilter!=='all') filtered=filtered.filter(r=>r.dept===activityFilter);
+        if(!filtered.length){document.getElementById('activitiesReportsContainer').innerHTML='<div class="loading">📭 Нет отчётов</div>';return;}
+        let html=`<table class="reports-table"><thead><tr><th>Офицер</th><th>Отдел</th><th>Активность</th><th>Описание</th><th>Док-ва</th><th>Дата</th></tr></thead><tbody>`;
+        for(let r of filtered.slice().reverse()){
+            let actName=departmentActivities[r.dept]?.find(a=>a.id===r.activity_id)?.name||r.activity_id;
+            let proofHtml=r.proof?`<a href="${escapeHtml(r.proof)}" target="_blank" style="color:#00ff88">🔗 Ссылка</a>`:'—';
+            html+=`<tr>
+                <td><strong>${escapeHtml(r.officer_name)}</strong></td>
+                <td>${r.dept}</td>
+                <td>${escapeHtml(actName)}</td>
+                <td>${escapeHtml(r.description)}</td>
+                <td>${proofHtml}</td>
+                <td>${new Date(r.date).toLocaleString()}</td>
+            </tr>`;
+        }
+        html+=`</tbody></table>`;
+        document.getElementById('activitiesReportsContainer').innerHTML=html;
+    }
+    
+    function setupFiltersStat(){
+        let div=document.getElementById('activitiesFilters'), depts=['all','PAI','CPD','SWAT','IAD','PAD','GATE','DB'];
+        div.innerHTML=depts.map(d=>`<span class="filter-badge ${activityFilter===d?'active':''}" data-filter="${d}">${d==='all'?'Все':d}</span>`).join('');
+        document.querySelectorAll('.filter-badge').forEach(el=>el.addEventListener('click',()=>{ activityFilter=el.dataset.filter; document.querySelectorAll('.filter-badge').forEach(f=>f.classList.remove('active')); el.classList.add('active'); updateActivitiesReportsPageStat(); }));
+    }
+    
+    // ========== БЛЭКСЫ ==========
+    async function fetchTasks(){let data=await supabaseFetch('/rest/v1/tasks?select=*');tasks=data;renderTasks();updateBleksStats();}
+    async function fetchBleksLog() {
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/bleks_log?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const text = await res.text();
+            bleksLog = text ? JSON.parse(text) : [];
+            renderBleksLog();
+            updateBleksStats();
+        } catch(e) { console.error(e); bleksLog = []; renderBleksLog(); updateBleksStats(); }
+    }
+    
+    function updateBleksStats(){
+        let dailyCompleted=0, weeklyCompleted=0, monthlyCompleted=0;
+        let currentWeek=getWeekNumber(), currentMonth=getMonthPeriodForDate(new Date());
+        let dailyTotal=getTotalTasksCount('daily'), weeklyTotal=getTotalTasksCount('weekly'), monthlyTotal=getTotalTasksCount('monthly');
+        for(let log of bleksLog){
+            if(log.task_type==='daily' && log.daily_date===todayDate) dailyCompleted++;
+            if(log.task_type==='weekly' && log.week_number===currentWeek) weeklyCompleted++;
+            if(log.task_type==='monthly' && log.month_period===currentMonth) monthlyCompleted++;
+        }
+        document.getElementById('dailyCount').innerText=`${dailyCompleted} / ${dailyTotal}`;
+        document.getElementById('weeklyCount').innerText=`${weeklyCompleted} / ${weeklyTotal}`;
+        document.getElementById('monthlyCount').innerText=`${monthlyCompleted} / ${monthlyTotal}`;
+    }
+    
+    function renderTasks(){
+        let filtered=tasks.filter(t=>t.type===currentTab);
+        let completedIds=new Set();
+        if(currentTab==='daily') completedIds=new Set(bleksLog.filter(l=>l.task_type==='daily' && l.daily_date===todayDate).map(l=>l.task_id));
+        else if(currentTab==='weekly') completedIds=new Set(bleksLog.filter(l=>l.task_type==='weekly' && l.week_number===weekNumber).map(l=>l.task_id));
+        else completedIds=new Set(bleksLog.filter(l=>l.task_type==='monthly' && l.month_period===monthPeriod).map(l=>l.task_id));
+        let html=filtered.map(t=>`<div class="task-card"><div class="task-name">${t.name}</div><div class="task-dept">${t.dept}</div><div class="task-points">🫐 ${t.points_reward} бл.</div><div class="task-status ${completedIds.has(t.id)?'completed':'pending'}">${completedIds.has(t.id)?'✅ Выполнено':'⏳ Не выполнено'}</div></div>`).join('');
+        document.getElementById('tasksContainer').innerHTML=html||'<div class="loading">Нет заданий</div>';
+    }
+    
+    function renderBleksLog(){
+        let html=`<table class="bleks-log-table"><thead>运转<th>Офицер</th><th>Отдел</th><th>Задание</th><th>Тип</th><th>Описание</th><th>Дата</th></tr></thead><tbody>`;
+        for(let log of bleksLog.slice(0,50)){
+            html+=`<tr>
+                <td>${escapeHtml(log.officer_name)}</span></td>
+                <td>${log.dept}</span></td>
+                <td>${escapeHtml(log.task_name)}</span></td>
+                <td>${log.task_type==='daily'?'Ежедневное':log.task_type==='weekly'?'Еженедельное':'Ежемесячное'}</span></td>
+                <td style="max-width:300px">${escapeHtml(log.description||'—')}</span></td>
+                <td>${new Date(log.created_at).toLocaleString()}</span></td>
+            </tr>`;
+        }
+        html+=`</tbody></table>`;
+        document.getElementById('bleksLogTable').innerHTML=html;
+    }
+    
+    // ========== ОФИЦЕРСКИЙ СОСТАВ ==========
+    async function renderOfficers() {
+        const users = await supabaseFetch('/rest/v1/users?select=*');
+        if (!users.length) {
+            document.getElementById('officersGrid').innerHTML = '<div class="loading">Нет данных</div>';
+            return;
+        }
+        
+        const roleNames = {
+            1:'👑 Шеф полиции',2:'⭐ Зам. Шефа',
+            3:'📚 Начальник PAI',4:'🚔 Начальник CPD',5:'🔫 Начальник SWAT',6:'⚖️ Начальник IAD',7:'📢 Начальник PAD',8:'⚡ Начальник GATE',
+            9:'📚 Зам. PAI',10:'🚔 Зам. CPD',11:'🔫 Зам. SWAT',12:'⚖️ Зам. IAD',13:'📢 Зам. PAD',14:'⚡ Зам. GATE',
+            15:'👮 Рядовой сотрудник'
+        };
+        
+        let html = '';
+        for (let u of users) {
+            const avatarUrl = u.avatar_url || 'https://cdn.discordapp.com/embed/avatars/0.png';
+            const discordName = u.username || 'Не указан';
+            const roleName = roleNames[u.role_id] || 'Сотрудник';
+            
+            html += `
+                <div class="officer-card">
+                    <img src="${avatarUrl}" alt="avatar" class="officer-avatar" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                    <div class="officer-info">
+                        <div class="officer-name">${escapeHtml(u.first_name || '')} ${escapeHtml(u.last_name || '')}</div>
+                        <div class="officer-role">${roleName}</div>
+                        <div class="officer-discord">🎮 ${escapeHtml(discordName)}</div>
+                        ${u.department ? `<div class="officer-role" style="margin-top:8px;">📁 Отдел: ${u.department}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        document.getElementById('officersGrid').innerHTML = html;
+    }
+    
+    // ========== НАВИГАЦИЯ ==========
+    function switchSection(sectionId){
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active-section'));
+        document.getElementById(`section-${sectionId}`).classList.add('active-section');
+        document.querySelectorAll('.main-nav-btn').forEach(b=>b.classList.remove('active'));
+        document.querySelector(`.main-nav-btn[data-section="${sectionId}"]`).classList.add('active');
+        if(sectionId==='activities') updateActivitiesReportsPageStat();
+        if(sectionId==='bleks') { renderTasks(); updateBleksStats(); }
+        if(sectionId==='officers') renderOfficers();
+    }
+    
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    async function init() {
+        weekNumber = getWeekNumber();
+        todayDate = getTodayDate();
+        monthPeriod = getMonthPeriodForDate(new Date());
+        
+        checkAuth();
+        
+        await Promise.all([fetchTasks(), fetchBleksLog(), fetchReportsStat(), renderOfficers()]);
+        
+        document.querySelectorAll('.bleks-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.bleks-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.type;
+                renderTasks();
+            });
+        });
+        
+        setupFiltersStat();
+        
+        document.querySelectorAll('.main-nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchSection(btn.dataset.section));
+        });
+    }
+    
+    init();
+</script>
+</body>
+</html>
