@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Обработка авторизации...</title>
+</head>
+<body>
+    <script>
+        // Получаем код из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        if (code) {
+            // Отправляем код в родительское окно
+            if (window.opener) {
+                window.opener.postMessage({ type: 'discord_auth_code', code: code }, '*');
+            }
+            // Закрываем окно
+            window.close();
+        } else {
+            // Если нет кода, просто закрываем
+            window.close();
+        }
+    </script>
+    <p>Авторизация завершена. Вы можете закрыть это окно.</p>
+</body>
+</html>
