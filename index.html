@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSPD Blackberry RP — Авторизация через Discord</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0c15;color:#e8edf5;min-height:100vh;display:flex;align-items:center;justify-content:center}
+        .auth-container{background:linear-gradient(135deg,#1a1f2e,#0f1425);border-radius:32px;padding:50px;text-align:center;max-width:500px;width:90%;border:1px solid #00aaff40}
+        .lspd-badge{font-size:80px;margin-bottom:20px}
+        h1{font-size:42px;background:linear-gradient(135deg,#fff,#00aaff);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px}
+        .subtitle{color:#8a9bc0;margin-bottom:30px}
+        .discord-login-btn{background:#5865F2;color:white;border:none;padding:16px 40px;border-radius:50px;font-size:18px;font-weight:bold;cursor:pointer;display:inline-flex;align-items:center;gap:12px;transition:0.3s}
+        .discord-login-btn:hover{transform:scale(1.05);background:#4752c4;box-shadow:0 0 20px rgba(88,101,242,0.5)}
+        .loading{display:none;margin-top:20px;color:#00aaff}
+        .error{color:#ff4444;margin-top:15px;display:none;font-size:14px}
+        footer{margin-top:30px;font-size:12px;color:#6a7c9e}
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="lspd-badge">👮‍♂️⭐👮‍♀️</div>
+        <h1>LSPD</h1>
+        <div class="subtitle">LOS SANTOS POLICE DEPARTMENT</div>
+        <div class="subtitle" style="font-size:14px;margin-bottom:30px">GTA 5 RP | Сервер Blackberry</div>
+        
+        <button class="discord-login-btn" id="discordLoginBtn">
+            🎮 Войти через Discord
+        </button>
+        <div class="loading" id="loading">⏳ Авторизация... Пожалуйста, подождите</div>
+        <div class="error" id="errorMsg"></div>
+        <footer>To Protect and Serve</footer>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://xhgudkefqmntnekaxgke.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_Svhz_VfE3OTEJckPSHoHrw_2e5BxGQF';
+        
+        const DISCORD_CLIENT_ID = '1502575054209286194';
+        const DISCORD_CLIENT_SECRET = 'Mm70_LvYBQzmkQrxs1hSS3kWtgXmedPN';
+        const REDIRECT_URI = 'https://abdul01041958as-collab.github.io/lspd-portal1/callback.html';
+        const DASHBOARD_URL = 'https://abdul01041958as-collab.github.io/lspd-dashboard/';
+        
+        // Проверяем, нет ли уже авторизованного пользователя
+        const savedUser = localStorage.getItem('lspd_user');
+        if (savedUser) {
+            window.location.href = DASHBOARD_URL;
+        }
+        
+        function getDiscordAvatar(user) {
+            if (user.avatar) {
+                return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+            }
+            return `https://cdn.discordapp.com/embed/avatars/0.png`;
+        }
+        
+        async function saveUserToSupabase(discordUser) {
+            const avatarUrl = getDiscordAvatar(discordUser);
+            const fullName = discordUser.global_name || discordUser.username;
+            const nameParts = fullName.split(' ');
+            const firstName = nameParts[0] || discordUser.username;
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            // Проверяем существование пользователя
+            const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?discord_id=eq.${discordUser.id}&select=*`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            
+            const existingUsers = await checkResponse.json();
+            
+            if (existingUsers && existingUsers.length > 0) {
+                // Обновляем
+                await fetch(`${SUPABASE_URL}/rest/v1/users?discord_id=eq.${discordUser.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: discordUser.username,
+                        first_name: firstName,
+                        last_name: lastName,
+                        avatar_url: avatarUrl
+                    })
+                });
+                
+                return {
+                    id: existingUsers[0].id,
+                    discord_id: discordUser.id,
+                    username: discordUser.username,
+                    first_name: firstName,
+                    last_name: lastName,
+                    avatar_url: avatarUrl,
+                    role_id: existingUsers[0].role_id || 15,
+                    department: existingUsers[0].department,
+                    position_name: getPositionName(existingUsers[0].role_id || 15),
+                    total_reports: existingUsers[0].total_reports || 0,
+                    reputation: existingUsers[0].reputation || 0
+                };
+            } else {
+                // Создаём нового
+                const insertResponse = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        discord_id: discordUser.id,
+                        username: discordUser.username,
+                        first_name: firstName,
+                        last_name: lastName,
+                        avatar_url: avatarUrl,
+                        role_id: 15,
+                        hired_date: new Date().toISOString()
+                    })
+                });
+                
+                const newUser = await insertResponse.json();
+                return {
+                    id: newUser[0].id,
+                    discord_id: discordUser.id,
+                    username: discordUser.username,
+                    first_name: firstName,
+                    last_name: lastName,
+                    avatar_url: avatarUrl,
+                    role_id: 15,
+                    department: null,
+                    position_name: getPositionName(15),
+                    total_reports: 0,
+                    reputation: 0
+                };
+            }
+        }
+        
+        function getPositionName(roleId) {
+            const positions = {
+                1: 'Шеф полиции', 2: 'Зам. Шефа',
+                3: 'Начальник PAI', 4: 'Начальник CPD', 5: 'Начальник SWAT',
+                6: 'Начальник IAD', 7: 'Начальник PAD', 8: 'Начальник GATE',
+                9: 'Зам. PAI', 10: 'Зам. CPD', 11: 'Зам. SWAT',
+                12: 'Зам. IAD', 13: 'Зам. PAD', 14: 'Зам. GATE',
+                15: 'Рядовой сотрудник'
+            };
+            return positions[roleId] || 'Сотрудник';
+        }
+        
+        async function exchangeCodeForToken(code) {
+            const response = await fetch('https://discord.com/api/oauth2/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    client_id: DISCORD_CLIENT_ID,
+                    client_secret: DISCORD_CLIENT_SECRET,
+                    grant_type: 'authorization_code',
+                    code: code,
+                    redirect_uri: REDIRECT_URI
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to exchange code for token');
+            }
+            return await response.json();
+        }
+        
+        async function startDiscordAuth() {
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('errorMsg');
+            const loginBtn = document.getElementById('discordLoginBtn');
+            
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            loginBtn.disabled = true;
+            
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify`;
+            
+            const width = 500;
+            const height = 700;
+            const left = screen.width / 2 - width / 2;
+            const top = screen.height / 2 - height / 2;
+            
+            const popup = window.open(authUrl, 'Discord Auth', `width=${width},height=${height},left=${left},top=${top}`);
+            
+            window.addEventListener('message', async (event) => {
+                if (event.data && event.data.type === 'discord_auth_code') {
+                    popup.close();
+                    
+                    try {
+                        const tokenData = await exchangeCodeForToken(event.data.code);
+                        
+                        const userResponse = await fetch('https://discord.com/api/users/@me', {
+                            headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
+                        });
+                        
+                        const discordUser = await userResponse.json();
+                        const savedUser = await saveUserToSupabase(discordUser);
+                        
+                        localStorage.setItem('lspd_user', JSON.stringify(savedUser));
+                        window.location.href = DASHBOARD_URL;
+                        
+                    } catch (error) {
+                        console.error('Auth error:', error);
+                        errorEl.textContent = '❌ Ошибка авторизации: ' + error.message;
+                        errorEl.style.display = 'block';
+                        loadingEl.style.display = 'none';
+                        loginBtn.disabled = false;
+                    }
+                }
+            });
+        }
+        
+        document.getElementById('discordLoginBtn').addEventListener('click', startDiscordAuth);
+    </script>
+</body>
+</html>

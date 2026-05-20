@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Обработка авторизации...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0c15;
+            color: #e8edf5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .message {
+            text-align: center;
+            padding: 20px;
+        }
+        .loading {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #00aaff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="message">
+        <div class="loading"></div>
+        <p>Авторизация завершена...</p>
+        <p>Вы можете закрыть это окно.</p>
+    </div>
+    <script>
+        // Получаем код из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        if (code && window.opener) {
+            // Отправляем код в родительское окно
+            window.opener.postMessage({ type: 'discord_auth_code', code: code }, '*');
+            // Закрываем окно через 2 секунды
+            setTimeout(() => {
+                window.close();
+            }, 2000);
+        } else if (code) {
+            // Если нет родительского окна, сохраняем в localStorage
+            localStorage.setItem('discord_auth_code', code);
+            window.close();
+        }
+    </script>
+</body>
+</html>
